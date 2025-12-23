@@ -1,6 +1,5 @@
-// TypeScript'in 'process' nesnesini tanıması için global tanımlama.
-// Bu, hem tarayıcı tarafında (Vite tarafından değiştirilen process.env)
-// hem de genel tip kontrolü için gereklidir.
+// TypeScript'in 'process' nesnesini tanıması ve API_KEY'i tiplemesi için global tanımlama.
+// Mevcut NodeJS namespace'ini genişleterek çakışmayı önlüyoruz.
 
 declare namespace NodeJS {
   interface ProcessEnv {
