@@ -39,10 +39,11 @@ export const analyzeDreamStream = async (
 
 export const generateDreamImage = async (dreamText: string): Promise<string> => {
   try {
-    // We create a specific prompt for the image generation to ensure the style is consistent
-    const imagePrompt = `A surreal, mystical tarot card style illustration representing the following dream concept: "${dreamText.substring(0, 300)}". 
-    The style should be ethereal, detailed, cinematic lighting, digital art, dark fantasy aesthetic, intricate details, high quality. 
-    Do not include text in the image.`;
+    // Updated prompt: Removed "tarot card" reference.
+    // Switched to surreal, psychological dreamscape style.
+    const imagePrompt = `A surreal, deep psychological dreamscape illustration representing: "${dreamText.substring(0, 300)}". 
+    Style: Salvador Dali meets Rene Magritte. Ethereal, cinematic lighting, digital art, subconscious symbolism, mysterious, detailed background, masterpiece. 
+    NO text, NO borders, NO card frames.`;
 
     const response = await ai.models.generateContent({
       model: IMAGE_MODEL_NAME,
@@ -54,7 +55,6 @@ export const generateDreamImage = async (dreamText: string): Promise<string> => 
     });
 
     // Extract the base64 image data
-    // Assuming the model returns the image in the first candidate's first part
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) {
         const base64String = part.inlineData.data;
@@ -66,8 +66,6 @@ export const generateDreamImage = async (dreamText: string): Promise<string> => 
 
   } catch (error) {
     console.error("Gemini Image API Error:", error);
-    // We don't want to crash the whole app if image generation fails, 
-    // but we should propagate the error to handle the UI state.
     throw error;
   }
 };

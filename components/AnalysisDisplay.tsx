@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+
+import React, { useMemo, useState } from 'react';
 import { AnalysisStatus } from '../types';
-import { AlertCircle, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, Sparkles, BrainCircuit, Copy, Check } from 'lucide-react';
 
 interface AnalysisDisplayProps {
   status: AnalysisStatus;
@@ -12,6 +13,14 @@ interface AnalysisDisplayProps {
 }
 
 const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, imageUrl, isImageLoading, error, onReset }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(analysis);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (status === AnalysisStatus.IDLE) return null;
 
   if (status === AnalysisStatus.ERROR) {
@@ -19,13 +28,13 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
       <div className="w-full max-w-2xl mx-auto mt-8 p-6 bg-red-950/40 border border-red-900/50 backdrop-blur-md rounded-xl text-red-200 flex items-center gap-4 animate-fadeIn">
         <AlertCircle className="w-8 h-8 flex-shrink-0 text-red-500" />
         <div>
-          <h3 className="font-serif font-bold text-lg text-red-400">Ruhsal Bağlantı Hatası</h3>
-          <p className="text-sm opacity-80">{error || "Rüya evreniyle bağlantı kurulurken bir sorun oluştu. Lütfen tekrar deneyin."}</p>
+          <h3 className="font-serif font-bold text-lg text-red-400">Analiz Hatası</h3>
+          <p className="text-sm opacity-80">{error || "Analiz servisiyle bağlantı kurulurken bir sorun oluştu. Lütfen tekrar deneyin."}</p>
           <button 
             onClick={onReset}
             className="mt-3 text-xs uppercase tracking-widest underline hover:text-white transition-colors"
           >
-            Bağlantıyı Yenile
+            Yeniden Dene
           </button>
         </div>
       </div>
@@ -74,43 +83,38 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
           {/* Inner Decorative Border */}
           <div className="border border-mystic-700/30 rounded-lg p-6 md:p-10 relative flex flex-col items-center">
             
-            {/* Ornate Corners */}
-            <div className="absolute top-2 left-2 w-8 h-8 border-t border-l border-mystic-gold/40 rounded-tl-lg"></div>
-            <div className="absolute top-2 right-2 w-8 h-8 border-t border-r border-mystic-gold/40 rounded-tr-lg"></div>
-            <div className="absolute bottom-2 left-2 w-8 h-8 border-b border-l border-mystic-gold/40 rounded-bl-lg"></div>
-            <div className="absolute bottom-2 right-2 w-8 h-8 border-b border-r border-mystic-gold/40 rounded-br-lg"></div>
+            {/* Minimal Corners */}
+            <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-mystic-gold/20"></div>
+            <div className="absolute top-4 right-4 w-4 h-4 border-t border-r border-mystic-gold/20"></div>
+            <div className="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-mystic-gold/20"></div>
+            <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-mystic-gold/20"></div>
 
-            {/* Ambient Background Glows */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-mystic-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-mystic-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-
-            {/* --- DREAM VISUALIZATION (TAROT CARD STYLE) --- */}
-            <div className="w-full max-w-[320px] aspect-[2/3] mb-10 relative rounded-lg overflow-hidden border border-mystic-700 bg-black/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] group hover:border-mystic-gold/40 transition-colors duration-700">
+            {/* --- DREAM VISUALIZATION (CINEMATIC STYLE) --- */}
+            {/* Changed aspect ratio from card (2/3) to more square/cinematic (1/1 or 4/3) and removed "Tarot" label */}
+            <div className="w-full max-w-[400px] aspect-square mb-10 relative rounded-lg overflow-hidden border border-mystic-700 bg-black/40 shadow-[0_0_40px_rgba(0,0,0,0.6)] group">
               {imageUrl ? (
                 <>
                   <img 
                     src={imageUrl} 
-                    alt="Rüya Kartı" 
-                    className="w-full h-full object-cover animate-fadeIn opacity-90 group-hover:opacity-100 transition-opacity duration-700"
+                    alt="Rüya Vizyonu" 
+                    className="w-full h-full object-cover animate-fadeIn opacity-90 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
                   />
-                  {/* Image Vintage Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-mystic-900 via-transparent to-mystic-900/20 mix-blend-multiply pointer-events-none"></div>
-                  <div className="absolute inset-0 border-[6px] border-mystic-900/30 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-mystic-950 via-transparent to-transparent opacity-60 pointer-events-none"></div>
                 </>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
                    {isImageLoading ? (
                      <>
-                       <div className="absolute inset-0 bg-gradient-to-t from-mystic-900 via-mystic-800/50 to-transparent opacity-50 animate-pulse-slow"></div>
-                       <Sparkles className="w-10 h-10 text-mystic-gold/70 animate-spin-slow mb-4" />
-                       <p className="text-xs text-mystic-300 font-serif tracking-[0.2em] animate-pulse">
-                         VİZYON OLUŞTURULUYOR
+                       <div className="absolute inset-0 bg-gradient-to-tr from-mystic-900 via-mystic-800/30 to-transparent opacity-50 animate-pulse-slow"></div>
+                       <Sparkles className="w-8 h-8 text-mystic-gold/60 animate-spin-slow mb-4" />
+                       <p className="text-xs text-mystic-300 font-sans tracking-widest animate-pulse opacity-70">
+                         BİLİNÇALTI GÖRSELLENİYOR...
                        </p>
                      </>
                    ) : (
-                      <div className="opacity-10 flex flex-col items-center">
-                        <ImageIcon className="w-16 h-16 mb-4" />
-                        <span className="font-serif text-sm tracking-widest">TAROT</span>
+                      <div className="opacity-20 flex flex-col items-center">
+                        <BrainCircuit className="w-16 h-16 mb-4" />
+                        <span className="font-serif text-xs tracking-[0.3em]">RÜYA İMGESİ</span>
                       </div>
                    )}
                 </div>
@@ -120,7 +124,7 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
             {/* Loading Text State */}
             {status === AnalysisStatus.ANALYZING && !analysis && (
                <div className="flex flex-col items-center justify-center pb-10 space-y-4">
-                 <p className="text-mystic-200 animate-pulse text-sm font-serif tracking-[0.3em]">SEMBOLLER OKUNUYOR...</p>
+                 <p className="text-mystic-200 animate-pulse text-sm font-serif tracking-[0.2em] opacity-80">SEMBOLLER ANALİZ EDİLİYOR...</p>
                </div>
             )}
 
@@ -129,29 +133,33 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
               
               {/* Title Section */}
               {title && (
-                <div className="text-center mb-12 animate-fadeIn">
-                    <span className="text-[10px] text-mystic-gold/60 uppercase tracking-[0.4em] mb-2 block font-serif">Rüya Kartı</span>
-                    <h2 className="text-3xl md:text-5xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-mystic-goldLight to-amber-600 drop-shadow-sm px-2 leading-tight py-1">
+                <div className="text-center mb-10 animate-fadeIn relative">
+                    <div className="absolute top-0 right-0">
+                       <button 
+                         onClick={handleCopy}
+                         className="p-2 text-mystic-500 hover:text-mystic-gold transition-colors duration-300"
+                         title="Analizi Kopyala"
+                       >
+                         {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                       </button>
+                    </div>
+                    
+                    <span className="text-[10px] text-mystic-gold/60 uppercase tracking-[0.4em] mb-3 block font-serif">Analiz Raporu</span>
+                    <h2 className="text-2xl md:text-4xl font-serif text-transparent bg-clip-text bg-gradient-to-b from-white to-mystic-300 drop-shadow-sm px-2 leading-tight py-1">
                         {title}
                     </h2>
-                    <div className="flex justify-center items-center mt-6 gap-3 opacity-60">
-                         <div className="h-px w-16 bg-gradient-to-r from-transparent to-mystic-gold"></div>
-                         <div className="w-2 h-2 rotate-45 border border-mystic-gold bg-black"></div>
-                         <div className="h-px w-16 bg-gradient-to-l from-transparent to-mystic-gold"></div>
-                    </div>
+                    <div className="w-20 h-px bg-gradient-to-r from-transparent via-mystic-500 to-transparent mx-auto mt-6"></div>
                 </div>
               )}
 
               {/* Text Content */}
-              <div className="space-y-10 px-1 md:px-4">
+              <div className="space-y-12 px-1 md:px-4">
                   {contentSections.map((section: any, index: number) => (
-                      <div key={index} className="animate-fadeIn group" style={{ animationDelay: `${index * 150 + 300}ms` }}>
-                          <h3 className="text-lg font-serif text-mystic-gold/80 mb-4 uppercase tracking-wider text-center flex items-center justify-center gap-3">
-                              <span className="w-1.5 h-1.5 rounded-full bg-mystic-gold/40 group-hover:bg-mystic-gold transition-colors"></span>
+                      <div key={index} className="animate-fadeIn" style={{ animationDelay: `${index * 150 + 300}ms` }}>
+                          <h3 className="text-sm font-serif text-mystic-gold/90 mb-3 uppercase tracking-widest border-b border-mystic-800/50 pb-2 inline-block">
                               {section.title}
-                              <span className="w-1.5 h-1.5 rounded-full bg-mystic-gold/40 group-hover:bg-mystic-gold transition-colors"></span>
                           </h3>
-                          <div className="text-gray-300 leading-relaxed font-sans text-justify text-sm md:text-base font-light tracking-wide border-l-2 border-mystic-800/50 pl-6 hover:border-mystic-gold/20 transition-colors duration-500">
+                          <div className="text-mystic-100/90 leading-relaxed font-sans text-justify text-sm md:text-base font-light tracking-wide">
                               {section.body}
                           </div>
                       </div>
@@ -162,13 +170,13 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
             
             {/* Reset Button */}
             {status === AnalysisStatus.COMPLETED && (
-               <div className="mt-16 pt-10 w-full border-t border-mystic-800/50 flex justify-center animate-fadeIn">
+               <div className="mt-16 pt-10 w-full border-t border-mystic-800/30 flex justify-center animate-fadeIn">
                  <button 
                   onClick={onReset}
-                  className="px-10 py-3 rounded-full border border-mystic-700 bg-mystic-900 hover:bg-mystic-800 hover:border-mystic-gold/40 text-mystic-200 hover:text-mystic-goldLight transition-all duration-300 text-xs font-serif tracking-[0.2em] flex items-center gap-3 shadow-[0_0_20px_rgba(0,0,0,0.3)] group"
+                  className="px-8 py-3 rounded-full border border-mystic-600/50 bg-mystic-900/50 hover:bg-mystic-800 hover:border-mystic-gold/40 text-mystic-200 hover:text-white transition-all duration-300 text-xs font-serif tracking-[0.2em] flex items-center gap-3 shadow-lg"
                  >
-                   <span className="group-hover:-translate-x-1 transition-transform duration-300 text-lg">←</span>
-                   BAŞKA BİR RÜYA
+                   <span className="text-lg pb-1">←</span>
+                   YENİ ANALİZ BAŞLAT
                  </button>
                </div>
             )}
