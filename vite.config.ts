@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  // @ts-ignore: process.cwd() is valid in Node context (vite config), but TS might complain if targeting DOM.
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
