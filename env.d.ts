@@ -1,5 +1,5 @@
-// TypeScript'in 'process' nesnesini tanıması ve API_KEY'i tiplemesi için global tanımlama.
-// Mevcut NodeJS namespace'ini genişleterek çakışmayı önlüyoruz.
+// TypeScript derleyicisi için global 'process' tanımı.
+// Bu dosya, projenin derleme aşamasında 'process is not defined' hatası almasını engeller.
 
 declare namespace NodeJS {
   interface ProcessEnv {

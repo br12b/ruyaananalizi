@@ -1,7 +1,9 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_INSTRUCTION, TEXT_MODEL_NAME, IMAGE_MODEL_NAME } from "../constants";
 
 // Initialize the API client
+// @ts-ignore: process.env.API_KEY is replaced by Vite at build time
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const analyzeDreamStream = async (
