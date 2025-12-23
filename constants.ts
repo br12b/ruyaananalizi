@@ -36,5 +36,5 @@ Sakin, empatik, bilge, analitik ve psikolojik derinliği olan bir ton kullan.
 `;
 
 export const TEXT_MODEL_NAME = "gemini-3-flash-preview";
-// Using Imagen 3 specifically for better artistic results and reliability
-export const IMAGE_MODEL_NAME = "imagen-3.0-generate-001";
+// Switching back to Gemini Flash Image as it is more stable for general API usage
+export const IMAGE_MODEL_NAME = "gemini-2.5-flash-image";

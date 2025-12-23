@@ -39,33 +39,43 @@ export const analyzeDreamStream = async (
 
 export const generateDreamImage = async (dreamText: string): Promise<string> => {
   try {
-    // Prompt optimized for Imagen 3
-    const imagePrompt = `Abstract surrealist art, dream interpretation, psychological symbolism. 
-    Subject: "${dreamText.substring(0, 300)}".
-    Style: Ethereal, moody lighting, Salvador Dali style, Rene Magritte style, oil painting texture, deep subconscious atmosphere.
-    High quality, 8k resolution, cinematic composition. No text, no words.`;
+    // Prompt explicitly asking for an image generation
+    const imagePrompt = `Generate a high-quality, surreal, psychological dreamscape illustration representing this dream concept: "${dreamText.substring(0, 300)}".
+    
+    Style requirements:
+    - Artistic Style: Mix of Salvador Dali and Rene Magritte.
+    - Atmosphere: Ethereal, mysterious, deep subconscious, moody cinematic lighting.
+    - Composition: Abstract but recognizable symbols, oil painting texture.
+    - NO TEXT, NO LETTERS, NO WORDS in the image.`;
 
-    // Use generateImages for Imagen models
-    const response = await ai.models.generateImages({
+    // Gemini Flash Image uses generateContent, not generateImages
+    const response = await ai.models.generateContent({
       model: IMAGE_MODEL_NAME,
-      prompt: imagePrompt,
-      config: {
-        numberOfImages: 1,
-        aspectRatio: '1:1',
-        outputMimeType: 'image/jpeg'
-      }
+      contents: {
+        parts: [
+          { text: imagePrompt }
+        ]
+      },
+      // config: { responseMimeType: 'image/jpeg' } // Not supported/needed for Flash Image
     });
 
-    // Correctly extract image bytes from the generateImages response
-    if (response.generatedImages && response.generatedImages.length > 0) {
-       const base64String = response.generatedImages[0].image.imageBytes;
-       return `data:image/jpeg;base64,${base64String}`;
+    // Extract the base64 image data from the response parts
+    // The model might return text and image, we need to find the image part.
+    if (response.candidates && response.candidates.length > 0) {
+      const parts = response.candidates[0].content?.parts || [];
+      for (const part of parts) {
+        if (part.inlineData) {
+          const base64String = part.inlineData.data;
+          // Gemini Flash Image typically returns PNG or JPEG
+          return `data:${part.inlineData.mimeType || 'image/png'};base64,${base64String}`;
+        }
+      }
     }
     
-    throw new Error("Görsel oluşturulamadı (Veri alınamadı).");
+    throw new Error("API yanıt verdi fakat görsel verisi bulunamadı.");
 
   } catch (error) {
-    console.error("Imagen API Error:", error);
+    console.error("Gemini Image API Error:", error);
     throw error;
   }
 };
