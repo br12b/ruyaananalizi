@@ -39,33 +39,33 @@ export const analyzeDreamStream = async (
 
 export const generateDreamImage = async (dreamText: string): Promise<string> => {
   try {
-    // Updated prompt: Removed "tarot card" reference.
-    // Switched to surreal, psychological dreamscape style.
-    const imagePrompt = `A surreal, deep psychological dreamscape illustration representing: "${dreamText.substring(0, 300)}". 
-    Style: Salvador Dali meets Rene Magritte. Ethereal, cinematic lighting, digital art, subconscious symbolism, mysterious, detailed background, masterpiece. 
-    NO text, NO borders, NO card frames.`;
+    // Prompt optimized for Imagen 3
+    const imagePrompt = `Abstract surrealist art, dream interpretation, psychological symbolism. 
+    Subject: "${dreamText.substring(0, 300)}".
+    Style: Ethereal, moody lighting, Salvador Dali style, Rene Magritte style, oil painting texture, deep subconscious atmosphere.
+    High quality, 8k resolution, cinematic composition. No text, no words.`;
 
-    const response = await ai.models.generateContent({
+    // Use generateImages for Imagen models
+    const response = await ai.models.generateImages({
       model: IMAGE_MODEL_NAME,
-      contents: {
-        parts: [
-          { text: imagePrompt }
-        ]
+      prompt: imagePrompt,
+      config: {
+        numberOfImages: 1,
+        aspectRatio: '1:1',
+        outputMimeType: 'image/jpeg'
       }
     });
 
-    // Extract the base64 image data
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        const base64String = part.inlineData.data;
-        return `data:image/png;base64,${base64String}`;
-      }
+    // Correctly extract image bytes from the generateImages response
+    if (response.generatedImages && response.generatedImages.length > 0) {
+       const base64String = response.generatedImages[0].image.imageBytes;
+       return `data:image/jpeg;base64,${base64String}`;
     }
     
-    throw new Error("No image data returned from the API.");
+    throw new Error("Görsel oluşturulamadı (Veri alınamadı).");
 
   } catch (error) {
-    console.error("Gemini Image API Error:", error);
+    console.error("Imagen API Error:", error);
     throw error;
   }
 };
