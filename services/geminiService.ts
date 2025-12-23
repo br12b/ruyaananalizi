@@ -39,21 +39,26 @@ export const analyzeDreamStream = async (
 
 export const generateDreamImage = async (dreamText: string): Promise<string> => {
   try {
-    // Simplified prompt specifically for Flash Image model
-    // The model responds better to direct "Draw" commands than complex descriptions
-    const imagePrompt = `Draw a surreal, artistic interpretation of this dream: "${dreamText.substring(0, 150)}". 
-    Style: Salvador Dali, oil painting, mysterious, cinematic lighting, dark fantasy. 
-    NO TEXT. High quality.`;
+    // Sanitize and shorten the dream text to avoid confusing the model or hitting token limits for image gen
+    // We take the first 150 chars to keep the prompt focused on the main theme
+    const safeDreamText = dreamText.replace(/["\n\r]/g, " ").substring(0, 150);
+
+    // Prompt engineered to be an imperative command for image generation
+    // Stronger "Create an image" instruction helps prevent text-only responses
+    const imagePrompt = `Create an image. 
+    Subject: A surreal dream scene depicting: ${safeDreamText}. 
+    Art Style: Salvador Dali meets Rene Magritte. Atmospheric, mysterious, dreamlike quality, oil painting texture.
+    Requirements: No text, no words, high resolution, 1:1 aspect ratio.`;
 
     const response = await ai.models.generateContent({
       model: IMAGE_MODEL_NAME,
-      contents: {
-        parts: [
-          { text: imagePrompt }
-        ]
-      },
+      contents: [
+        {
+           parts: [{ text: imagePrompt }]
+        }
+      ],
       config: {
-        // CRITICAL: This config forces the model to generate an image
+        // Explicitly requesting image generation configuration
         imageConfig: {
           aspectRatio: "1:1",
         }
@@ -61,9 +66,9 @@ export const generateDreamImage = async (dreamText: string): Promise<string> => 
     });
 
     // Extract the base64 image data
-    if (response.candidates && response.candidates.length > 0) {
-      const parts = response.candidates[0].content?.parts || [];
-      for (const part of parts) {
+    // Iterate through all parts as the image might not be the first part
+    if (response.candidates && response.candidates.length > 0 && response.candidates[0].content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
         if (part.inlineData) {
           const base64String = part.inlineData.data;
           const mimeType = part.inlineData.mimeType || 'image/png';
@@ -72,8 +77,8 @@ export const generateDreamImage = async (dreamText: string): Promise<string> => 
       }
     }
     
-    // If no image part found, log the text part to understand why
-    console.warn("Model returned only text:", response.text);
+    // Log warning if no image data found to help debugging
+    console.warn("Gemini Image Gen: No inlineData found. Full response:", response);
     throw new Error("Görsel oluşturulamadı (Model metin yanıtı döndü).");
 
   } catch (error) {
