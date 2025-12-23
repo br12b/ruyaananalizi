@@ -8,11 +8,12 @@ interface AnalysisDisplayProps {
   analysis: string;
   imageUrl: string | null;
   isImageLoading: boolean;
+  imageError?: boolean; // New prop
   error: string | null;
   onReset: () => void;
 }
 
-const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, imageUrl, isImageLoading, error, onReset }) => {
+const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, imageUrl, isImageLoading, imageError, error, onReset }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -90,7 +91,7 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
             <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-mystic-gold/20"></div>
 
             {/* --- DREAM VISUALIZATION (CINEMATIC STYLE) --- */}
-            <div className="w-full max-w-[400px] aspect-square mb-10 relative rounded-lg overflow-hidden border border-mystic-700 bg-black/40 shadow-[0_0_40px_rgba(0,0,0,0.6)] group">
+            <div className="w-full max-w-[400px] aspect-square mb-10 relative rounded-lg overflow-hidden border border-mystic-700 bg-black/40 shadow-[0_0_40px_rgba(0,0,0,0.6)] group transition-all duration-500">
               {imageUrl ? (
                 <>
                   <img 
@@ -110,14 +111,15 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
                          BİLİNÇALTI GÖRSELLENİYOR...
                        </p>
                      </>
-                   ) : status === AnalysisStatus.COMPLETED ? (
-                     // Image Failed but Analysis Completed
-                      <div className="opacity-50 flex flex-col items-center text-red-300/60">
-                        <ImageOff className="w-12 h-12 mb-3" />
+                   ) : imageError ? (
+                     // Image Failed State - Explicitly show this even if analysis is running
+                      <div className="opacity-60 flex flex-col items-center text-red-300/80 animate-fadeIn">
+                        <ImageOff className="w-10 h-10 mb-3" />
                         <span className="font-serif text-[10px] tracking-[0.2em] uppercase">Görsel Oluşturulamadı</span>
+                        <span className="text-[9px] font-sans opacity-50 mt-1 max-w-[200px]">Servis yoğun veya semboller görselleştirilemedi.</span>
                       </div>
                    ) : (
-                     // Initial State
+                     // Default Fallback (Should rarely be seen unless idle)
                       <div className="opacity-20 flex flex-col items-center">
                         <BrainCircuit className="w-16 h-16 mb-4" />
                         <span className="font-serif text-xs tracking-[0.3em]">RÜYA İMGESİ</span>
@@ -127,7 +129,7 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
               )}
             </div>
 
-            {/* Loading Text State */}
+            {/* Loading Text State (For text analysis) */}
             {status === AnalysisStatus.ANALYZING && !analysis && (
                <div className="flex flex-col items-center justify-center pb-10 space-y-4">
                  <p className="text-mystic-200 animate-pulse text-sm font-serif tracking-[0.2em] opacity-80">SEMBOLLER ANALİZ EDİLİYOR...</p>

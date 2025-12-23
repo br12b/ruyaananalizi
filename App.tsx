@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import Header from './components/Header';
 import DreamInput from './components/DreamInput';
@@ -10,6 +11,7 @@ const App: React.FC = () => {
   const [analysis, setAnalysis] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+  const [imageError, setImageError] = useState<boolean>(false); // New state for image specific error
   const [error, setError] = useState<string | null>(null);
   
   const analysisAccumulator = useRef<string>('');
@@ -19,6 +21,7 @@ const App: React.FC = () => {
     setAnalysis('');
     setImageUrl(null);
     setIsImageLoading(true);
+    setImageError(false); // Reset image error
     setError(null);
     analysisAccumulator.current = '';
 
@@ -34,15 +37,15 @@ const App: React.FC = () => {
         setIsImageLoading(false);
       })
       .catch((err) => {
-        console.error("Image generation failed", err);
+        console.error("Image generation failed:", err);
         setIsImageLoading(false);
-        // We don't fail the whole process if image fails, just show text
+        setImageError(true); // Mark image as failed explicitly
       });
 
     try {
       await textPromise;
       setStatus(AnalysisStatus.COMPLETED);
-      // Ensure image promise is handled (mostly for loading state cleanup if it's still running)
+      // Ensure image promise is handled
       await imagePromise; 
     } catch (err: any) {
       setError(err.message || 'Bir hata oluştu.');
@@ -56,6 +59,7 @@ const App: React.FC = () => {
     setAnalysis('');
     setImageUrl(null);
     setIsImageLoading(false);
+    setImageError(false);
     setError(null);
     analysisAccumulator.current = '';
   };
@@ -93,6 +97,7 @@ const App: React.FC = () => {
                 analysis={analysis}
                 imageUrl={imageUrl}
                 isImageLoading={isImageLoading}
+                imageError={imageError} // Pass the new error state
                 error={error} 
                 onReset={handleReset} 
              />
