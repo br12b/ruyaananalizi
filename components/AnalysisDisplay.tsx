@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AnalysisStatus } from '../types';
-import { AlertCircle, Sparkles, BrainCircuit, Copy, Check } from 'lucide-react';
+import { AlertCircle, Sparkles, BrainCircuit, Copy, Check, ImageOff } from 'lucide-react';
 
 interface AnalysisDisplayProps {
   status: AnalysisStatus;
@@ -90,7 +90,6 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
             <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-mystic-gold/20"></div>
 
             {/* --- DREAM VISUALIZATION (CINEMATIC STYLE) --- */}
-            {/* Changed aspect ratio from card (2/3) to more square/cinematic (1/1 or 4/3) and removed "Tarot" label */}
             <div className="w-full max-w-[400px] aspect-square mb-10 relative rounded-lg overflow-hidden border border-mystic-700 bg-black/40 shadow-[0_0_40px_rgba(0,0,0,0.6)] group">
               {imageUrl ? (
                 <>
@@ -111,7 +110,14 @@ const AnalysisDisplay: React.FC<AnalysisDisplayProps> = ({ status, analysis, ima
                          BİLİNÇALTI GÖRSELLENİYOR...
                        </p>
                      </>
+                   ) : status === AnalysisStatus.COMPLETED ? (
+                     // Image Failed but Analysis Completed
+                      <div className="opacity-50 flex flex-col items-center text-red-300/60">
+                        <ImageOff className="w-12 h-12 mb-3" />
+                        <span className="font-serif text-[10px] tracking-[0.2em] uppercase">Görsel Oluşturulamadı</span>
+                      </div>
                    ) : (
+                     // Initial State
                       <div className="opacity-20 flex flex-col items-center">
                         <BrainCircuit className="w-16 h-16 mb-4" />
                         <span className="font-serif text-xs tracking-[0.3em]">RÜYA İMGESİ</span>
